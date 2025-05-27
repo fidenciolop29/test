@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongo:/data/db
+
+  spark:
+    build:
+      context: ./docker/spark
+    container_name: spark
+    volumes:
+      - ./scripts:/opt/spark-apps
+    depends_on:
+      - mongodb
+    command: >
+      spark-submit
+      --packages org.mongodb.spark:mongo-spark-connector_2.12:3.0.1
+      --master local[*]
+      /opt/spark-apps/main.py
